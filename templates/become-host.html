@@ -210,7 +210,7 @@
         <div class="container mx-auto max-w-4xl text-center text-white">
             <h2 class="playfair text-5xl font-bold mb-6">Ready to Become a Host?</h2>
             <p class="text-xl mb-12 opacity-90">Join a community of successful hosts and start earning from your property today.</p>
-            <button onclick="showComingSoon()" class="px-10 py-4 bg-white text-rose-600 rounded-xl font-bold hover:bg-gray-100 transition inline-block">
+            <button onclick="showHostModal()" class="px-10 py-4 bg-white text-rose-600 rounded-xl font-bold hover:bg-gray-100 transition inline-block">
                 Apply to Host Now
             </button>
             <p class="text-sm mt-6 opacity-75">No credit card required. Free to apply.</p>
@@ -270,10 +270,221 @@
         </div>
     </footer>
 
+    <!-- Host Application Modal -->
+    <div id="hostModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-300">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-gradient-to-r from-rose-500 to-rose-600 p-8 text-white flex justify-between items-center">
+                <div>
+                    <h2 class="playfair text-3xl font-bold">Become a Host</h2>
+                    <p class="text-rose-100 mt-2">Start your journey with Merybnb today</p>
+                </div>
+                <button onclick="closeHostModal()" class="text-white hover:bg-white/20 rounded-full p-2 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div id="formContent" class="p-8">
+                <form id="hostApplicationForm" onsubmit="submitHostApplication(event)">
+                    <!-- Full Name -->
+                    <div class="mb-6">
+                        <label for="fullName" class="block text-sm font-bold text-gray-900 mb-2">Full Name *</label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            name="full_name"
+                            required 
+                            placeholder="John Doe"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200 transition"
+                        />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-6">
+                        <label for="email" class="block text-sm font-bold text-gray-900 mb-2">Email Address *</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            required 
+                            placeholder="john@example.com"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200 transition"
+                        />
+                    </div>
+
+                    <!-- Property Name -->
+                    <div class="mb-6">
+                        <label for="propertyName" class="block text-sm font-bold text-gray-900 mb-2">Property Name or Description *</label>
+                        <input 
+                            type="text" 
+                            id="propertyName" 
+                            name="property_name"
+                            required 
+                            placeholder="e.g., Luxury Beach Villa, Downtown Apartment"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200 transition"
+                        />
+                    </div>
+
+                    <!-- City -->
+                    <div class="mb-8">
+                        <label for="city" class="block text-sm font-bold text-gray-900 mb-2">City/Location *</label>
+                        <input 
+                            type="text" 
+                            id="city" 
+                            name="city"
+                            required 
+                            placeholder="e.g., Marrakech, Casablanca"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200 transition"
+                        />
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit"
+                        id="submitBtn"
+                        class="w-full px-6 py-4 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-lg font-bold hover:shadow-xl hover:shadow-rose-300 transition duration-300 flex items-center justify-center gap-2"
+                    >
+                        <span id="submitText">Submit Application</span>
+                        <span id="loadingSpinner" class="hidden animate-spin">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <p class="text-xs text-gray-500 mt-4 text-center">
+                        We'll never share your information. <a href="#" class="text-rose-600 hover:underline">Privacy Policy</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Success Message -->
+            <div id="successContent" class="hidden p-8 text-center">
+                <!-- Success Icon -->
+                <div class="mb-6 flex justify-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-4xl animate-bounce">
+                        ✓
+                    </div>
+                </div>
+
+                <h3 class="playfair text-3xl font-bold text-gray-900 mb-4">Thank You!</h3>
+                
+                <p class="text-lg text-gray-600 mb-6">
+                    Your host application has been received successfully.
+                </p>
+
+                <div class="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-green-200 rounded-xl p-6 mb-8">
+                    <p class="text-gray-900 font-bold mb-2">We will contact you within 24 hours</p>
+                    <p class="text-gray-600 text-sm">
+                        Our team is reviewing your application and will reach out via email with next steps.
+                    </p>
+                </div>
+
+                <div class="space-y-4 mb-8 text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">✓</div>
+                        <span class="text-gray-700"><strong>Application Received</strong> - We've stored your information securely</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">✓</div>
+                        <span class="text-gray-700"><strong>Verification In Progress</strong> - Our team is reviewing your details</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">✓</div>
+                        <span class="text-gray-700"><strong>Next Steps</strong> - We'll email you with your onboarding guide</span>
+                    </div>
+                </div>
+
+                <button 
+                    onclick="closeHostModal()"
+                    class="w-full px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-lg font-bold hover:shadow-lg hover:shadow-rose-300 transition"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function showComingSoon() {
-            alert('🚀 Host application coming soon!\n\nIn the meantime, please contact us at hosts@merybnb.com to express your interest.');
+        function showHostModal() {
+            document.getElementById('hostModal').classList.remove('hidden');
+            document.getElementById('hostModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
         }
+
+        function closeHostModal() {
+            document.getElementById('hostModal').classList.add('hidden');
+            document.getElementById('hostModal').classList.remove('flex');
+            document.body.style.overflow = '';
+            // Reset form and content
+            document.getElementById('hostApplicationForm').reset();
+            document.getElementById('formContent').classList.remove('hidden');
+            document.getElementById('successContent').classList.add('hidden');
+            resetSubmitButton();
+        }
+
+        function resetSubmitButton() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = false;
+            document.getElementById('submitText').classList.remove('hidden');
+            document.getElementById('loadingSpinner').classList.add('hidden');
+        }
+
+        async function submitHostApplication(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const formData = {
+                    full_name: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    property_name: document.getElementById('propertyName').value,
+                    city: document.getElementById('city').value,
+                };
+
+                const response = await fetch('/api/legal/host-application/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Hide form, show success message
+                    document.getElementById('formContent').classList.add('hidden');
+                    document.getElementById('successContent').classList.remove('hidden');
+                } else {
+                    alert('Error: ' + data.message);
+                    resetSubmitButton();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+                resetSubmitButton();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('hostModal')?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeHostModal();
+            }
+        });
     </script>
 </body>
 </html>

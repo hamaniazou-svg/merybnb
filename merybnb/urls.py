@@ -45,6 +45,7 @@ urlpatterns = [
     # App URLs (API endpoints)
     path('api/properties/', include('properties.urls')),
     path('api/bookings/', include('bookings.urls')),
+    path('api/legal/', include('legal.urls')),
     
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
