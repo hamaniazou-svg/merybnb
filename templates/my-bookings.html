@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | Merybnb</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .playfair { font-family: 'Playfair Display', serif; }
+        .gradient-text { background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-2 font-bold text-xl playfair">
+                <div class="w-8 h-8 bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg flex items-center justify-center text-white text-sm">M</div>
+                Merybnb
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-gray-600 hover:text-rose-600 font-medium text-sm transition">← Back to Explore</a>
+                <a href="/become-host.html" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-full text-sm font-semibold hover:shadow-lg transition">Become a Host</a>
+                <button onclick="logout()" class="text-gray-600 hover:text-rose-600 font-medium text-sm transition">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 max-w-6xl">
+        <!-- Header -->
+        <div class="mb-12">
+            <h1 class="playfair text-5xl font-bold text-gray-900 mb-3">My Trips</h1>
+            <p class="text-gray-600">Manage and view all your bookings</p>
+        </div>
+
+        <!-- Bookings List -->
+        <div id="bookings-list" class="space-y-6">
+            <!-- Loading State -->
+            <div id="loading-skeleton" class="animate-pulse space-y-6">
+                <div class="bg-white h-48 rounded-2xl border border-gray-200"></div>
+                <div class="bg-white h-48 rounded-2xl border border-gray-200"></div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden">
+            <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                <div class="text-5xl mb-4">✨</div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-3">No trips booked yet</h2>
+                <p class="text-gray-600 mb-8">Start exploring and book your next Moroccan adventure</p>
+                <a href="/" class="inline-block px-8 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl font-bold hover:shadow-lg transition">
+                    Discover Properties
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+        async function loadMyBookings() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/bookings/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const bookings = data.results || data;
+                    renderBookings(bookings);
+                } else if (response.status === 401) {
+                    // Token expired
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    window.location.href = '/login.html';
+                } else {
+                    showError('Failed to load bookings');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Connection error. Is Django running?');
+            }
+        }
+
+        function renderBookings(bookings) {
+            const container = document.getElementById('bookings-list');
+            const emptyState = document.getElementById('empty-state');
+            const loadingState = document.getElementById('loading-skeleton');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = '';
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            loadingState.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            container.innerHTML = bookings.map(booking => {
+                const checkIn = new Date(booking.check_in);
+                const checkOut = new Date(booking.check_out);
+                const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+                const statusColor = booking.status === 'confirmed' 
+                    ? 'bg-green-100 text-green-700' 
+                    : booking.status === 'pending'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-red-100 text-red-700';
+
+                return `
+                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="p-8">
+                            <div class="flex justify-between items-start mb-6">
+                                <div>
+                                    <h3 id="prop-name-${booking.id}" class="text-2xl font-bold text-gray-900">Loading...</h3>
+                                    <p id="prop-city-${booking.id}" class="text-gray-600 mt-1">Morocco</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-3xl font-bold gradient-text">Loading...</p>
+                                    <p class="text-xs text-gray-500 mt-1">Total Price</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-4 mb-6 pb-6 border-b">
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-gray-500 mb-1">Check-in</p>
+                                    <p class="font-bold text-gray-900">${checkIn.toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-gray-500 mb-1">Check-out</p>
+                                    <p class="font-bold text-gray-900">${checkOut.toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-gray-500 mb-1">Duration</p>
+                                    <p class="font-bold text-gray-900">${nights} night${nights !== 1 ? 's' : ''}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-gray-500 mb-1">Status</p>
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${statusColor} uppercase">
+                                        ${booking.status}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <p class="text-xs text-gray-500 font-mono">ID: ${booking.uid.substring(0, 8).toUpperCase()}</p>
+                                <button 
+                                    onclick="cancelBooking('${booking.uid}', this)" 
+                                    class="text-sm text-gray-600 hover:text-red-600 font-semibold transition"
+                                >
+                                    ${booking.status === 'pending' ? 'Cancel Booking' : 'View Details'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Fetch property details for each booking
+            bookings.forEach(booking => {
+                fetchPropertyDetails(booking.property_listing, booking.id);
+            });
+        }
+
+        async function fetchPropertyDetails(propId, bookingId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/properties/${propId}/`);
+                if (response.ok) {
+                    const property = await response.json();
+                    const nameEl = document.getElementById(`prop-name-${bookingId}`);
+                    const cityEl = document.getElementById(`prop-city-${bookingId}`);
+                    if (nameEl) nameEl.textContent = property.name;
+                    if (cityEl) cityEl.textContent = property.city || 'Morocco';
+                }
+            } catch (error) {
+                console.error('Error fetching property:', error);
+            }
+        }
+
+        async function cancelBooking(bookingId, button) {
+            if (!confirm('Are you sure you want to cancel this booking?')) return;
+
+            const token = localStorage.getItem('access_token');
+            button.disabled = true;
+            button.textContent = 'Cancelling...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 204 || response.ok) {
+                    alert('✓ Booking cancelled successfully');
+                    loadMyBookings();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.detail || 'Could not cancel booking'}`);
+                    button.disabled = false;
+                    button.textContent = 'Cancel Booking';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Connection error');
+                button.disabled = false;
+                button.textContent = 'Cancel Booking';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('bookings-list').innerHTML = `
+                <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+                    <h3 class="font-bold text-red-900 mb-2">Error Loading Bookings</h3>
+                    <p class="text-red-700">${message}</p>
+                    <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                window.location.href = '/';
+            }
+        }
+
+        // Load bookings on page load
+        loadMyBookings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Merybnb | My Trips</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-['Plus_Jakarta_Sans']">
+
+    <nav class="bg-white border-b px-8 py-4 flex justify-between items-center">
+        <h1 class="text-rose-500 font-bold text-2xl">Merybnb</h1>
+        <a href="index.html" class="text-sm font-semibold text-gray-600">Back to Explore</a>
+    </nav>
+
+    <main class="container mx-auto px-6 py-12 max-w-4xl">
+        <h2 class="text-3xl font-extrabold mb-8">My Luxury Reservations</h2>
+        
+        <div id="bookings-list" class="space-y-6">
+            <div class="text-center py-20 text-gray-400">Loading your trips...</div>
+        </div>
+    </main>
+
+    <script>
+        async function fetchMyBookings() {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/bookings/list/');
+                const data = await response.json();
+                
+                const list = document.getElementById('bookings-list');
+                list.innerHTML = ''; // Clear loading state
+
+                if (data.length === 0) {
+                    list.innerHTML = '<p class="text-center text-gray-500">No trips booked yet. Start exploring!</p>';
+                    return;
+                }
+
+                data.forEach(booking => {
+                    list.innerHTML += `
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800">Booking #${booking.id}</h4>
+                                <p class="text-gray-500 text-sm">${booking.check_in} to ${booking.check_out}</p>
+                                <span class="inline-block mt-2 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full uppercase">
+                                    ${booking.status}
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black text-rose-500">$${Math.round(booking.total_price)}</p>
+                                <p class="text-xs text-gray-400 uppercase tracking-widest">Total Paid</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error fetching bookings:", error);
+            }
+        }
+        fetchMyBookings();
+    </script>
+</body>
+</html>

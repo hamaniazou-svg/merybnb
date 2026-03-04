@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed | Merybnb</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .playfair { font-family: 'Playfair Display', serif; }
+        .gradient-text { background: linear-gradient(135deg, #10b981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .confetti { position: fixed; pointer-events: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-white via-green-50 to-white">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-2 font-bold text-xl playfair">
+                <div class="w-8 h-8 bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg flex items-center justify-center text-white text-sm">M</div>
+                Merybnb
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/my-bookings.html" class="text-gray-600 hover:text-rose-600 font-medium text-sm transition">My Bookings</a>
+                <a href="/become-host.html" class="px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-full text-sm font-semibold hover:shadow-lg transition">Become a Host</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-20 max-w-3xl">
+        <!-- Success Card -->
+        <div class="text-center mb-12">
+            <!-- Success Icon -->
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full mb-8 animate-bounce">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <!-- Heading -->
+            <h1 class="playfair text-5xl font-bold text-gray-900 mb-4">Booking Confirmed!</h1>
+            <p class="text-xl text-gray-600 mb-8">
+                Your reservation has been successfully created. Get ready for an unforgettable stay in Morocco.
+            </p>
+
+            <!-- Booking Details -->
+            <div class="bg-white border-2 border-green-200 rounded-3xl p-12 text-left mb-8 shadow-xl shadow-green-100/50">
+                <h2 class="text-2xl font-bold text-gray-900 mb-8">Booking Details</h2>
+                
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <p class="text-sm text-gray-500 uppercase font-bold mb-2">Confirmation Number</p>
+                        <p id="booking-id" class="text-2xl font-bold text-green-600 font-mono break-all">Loading...</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 uppercase font-bold mb-2">Status</p>
+                        <div class="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            Confirmed
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-8 space-y-6">
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-bold mb-2">Property</p>
+                            <p id="prop-name" class="text-lg font-bold text-gray-900">Loading...</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-bold mb-2">Location</p>
+                            <p id="prop-city" class="text-lg font-bold text-gray-900">Morocco</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-bold mb-2">Check-in</p>
+                            <p id="check-in" class="text-lg font-bold text-gray-900">TBD</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-bold mb-2">Check-out</p>
+                            <p id="check-out" class="text-lg font-bold text-gray-900">TBD</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-bold mb-2">Duration</p>
+                            <p id="nights" class="text-lg font-bold text-gray-900">- nights</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl border border-gray-200 mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-gray-600">Nightly Rate</span>
+                            <span id="nightly-rate" class="font-bold text-gray-900">$0/night</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-4 border-b">
+                            <span class="text-gray-600"><span id="total-nights">0</span> nights</span>
+                            <span id="subtotal" class="font-bold text-gray-900">$0</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-4">
+                            <span class="text-lg font-bold text-gray-900">Total</span>
+                            <span class="text-2xl font-bold gradient-text">$<span id="total-price">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- What's Next -->
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 mb-8">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">What's Next?</h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-4xl mb-3">📧</div>
+                        <h4 class="font-bold text-gray-900 mb-2">Confirmation Email</h4>
+                        <p class="text-sm text-gray-600">Check your email for booking details and host contact information.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-3">💬</div>
+                        <h4 class="font-bold text-gray-900 mb-2">Message Your Host</h4>
+                        <p class="text-sm text-gray-600">Introduce yourself and ask any questions with our secure messaging.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl mb-3">🎒</div>
+                        <h4 class="font-bold text-gray-900 mb-2">Prepare Your Stay</h4>
+                        <p class="text-sm text-gray-600">Pack your bags and get ready for an amazing Moroccan adventure!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="/my-bookings.html" class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-green-300 transition inline-block">
+                    View My Bookings
+                </a>
+                <a href="/" class="px-8 py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-xl font-bold hover:border-gray-300 transition inline-block">
+                    Continue Exploring
+                </a>
+            </div>
+
+            <!-- Important Info -->
+            <div class="text-left bg-amber-50 border-l-4 border-amber-400 p-6 rounded-lg">
+                <h4 class="font-bold text-gray-900 mb-3">⚠️ Important Information</h4>
+                <ul class="text-sm text-gray-700 space-y-2">
+                    <li>✓ You can access your booking details anytime in "My Bookings"</li>
+                    <li>✓ The host will respond to your reservation inquiry within 24 hours</li>
+                    <li>✓ Free cancellation available up to 48 hours before check-in</li>
+                    <li>✓ A confirmation will be sent to your registered email address</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12 mt-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <p>&copy; 2026 Merybnb. All rights reserved.</p>
+                <p class="text-sm mt-2">Thank you for choosing Merybnb for your Moroccan getaway!</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000/api';
+        
+        // Get booking ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingId = urlParams.get('booking_id');
+
+        // Load booking details
+        async function loadBookingDetails() {
+            if (!bookingId) {
+                document.getElementById('booking-id').textContent = 'No booking ID found';
+                return;
+            }
+
+            document.getElementById('booking-id').textContent = bookingId.substring(0, 8).toUpperCase() + '...';
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const booking = await response.json();
+                    const propertyResponse = await fetch(`${API_BASE_URL}/properties/${booking.property_listing}/`);
+                    const property = await propertyResponse.json();
+
+                    // Populate property info
+                    document.getElementById('prop-name').textContent = property.name;
+                    document.getElementById('prop-city').textContent = property.city || 'Morocco';
+
+                    // Calculate nights
+                    const checkIn = new Date(booking.check_in);
+                    const checkOut = new Date(booking.check_out);
+                    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+                    // Populate dates
+                    document.getElementById('check-in').textContent = checkIn.toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    document.getElementById('check-out').textContent = checkOut.toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    document.getElementById('nights').textContent = `${nights} night${nights !== 1 ? 's' : ''}`;
+                    document.getElementById('total-nights').textContent = nights;
+
+                    // Calculate prices
+                    const nightly = parseFloat(property.price_per_night);
+                    const total = nightly * nights;
+
+                    document.getElementById('nightly-rate').textContent = `$${nightly.toFixed(2)}/night`;
+                    document.getElementById('subtotal').textContent = `$${total.toFixed(2)}`;
+                    document.getElementById('total-price').textContent = total.toFixed(0);
+
+                    // Create confetti effect
+                    createConfetti();
+                } else {
+                    console.error('Failed to load booking');
+                }
+            } catch (error) {
+                console.error('Error loading booking:', error);
+            }
+        }
+
+        function createConfetti() {
+            const confettiPieces = 50;
+            const colors = ['#f43f5e', '#fb7785', '#fda4af', '#fecdd3', '#fef2f2'];
+            
+            for (let i = 0; i < confettiPieces; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.width = confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear`;
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        // CSS Animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load on page load
+        loadBookingDetails();
+    </script>
+</body>
+</html>

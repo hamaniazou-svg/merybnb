@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Merybnb</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .playfair { font-family: 'Playfair Display', serif; }
+        .gradient-text { background: linear-gradient(135deg, #f43f5e 0%, #be185d 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 via-white to-gray-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-12">
+            <a href="/" class="inline-flex items-center gap-2 font-bold text-2xl playfair mb-8">
+                <div class="w-10 h-10 bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg flex items-center justify-center text-white">M</div>
+                <span>Merybnb</span>
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <p class="text-gray-600">Sign in to access your bookings and account</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white border-2 border-gray-100 rounded-3xl p-8 shadow-xl shadow-gray-200/50">
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-3">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-medium text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:outline-none transition"
+                        placeholder="Enter your username"
+                        required
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-3">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-medium text-gray-900 placeholder-gray-400 focus:border-rose-500 focus:outline-none transition"
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-rose-300 transition active:scale-95"
+                >
+                    Sign In
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                <p class="text-gray-600 mb-3">Don't have an account?</p>
+                <a href="/become-host.html" class="text-rose-600 hover:text-rose-700 font-semibold transition">
+                    Become a Host →
+                </a>
+            </div>
+        </div>
+
+        <!-- Demo Info -->
+        <div class="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-200">
+            <p class="text-sm text-blue-900 font-medium mb-2">🔓 Demo Credentials:</p>
+            <p class="text-sm text-blue-800">Username: <code class="font-mono">admin</code></p>
+            <p class="text-sm text-blue-800">Password: <code class="font-mono">admin</code></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const button = e.target.querySelector('button[type="submit"]');
+            
+            // Disable button during submission
+            button.disabled = true;
+            button.textContent = 'Signing in...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/token/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access);
+                    localStorage.setItem('refresh_token', data.refresh);
+                    window.location.href = '/';
+                } else {
+                    alert('❌ Invalid username or password. Please try again.');
+                    button.disabled = false;
+                    button.textContent = 'Sign In';
+                }
+            } catch (err) {
+                console.error('Login Error:', err);
+                alert('⚠️ Connection error. Is Django running on http://127.0.0.1:8000?');
+                button.disabled = false;
+                button.textContent = 'Sign In';
+            }
+        };
+    </script>
+</body>
+</html>
