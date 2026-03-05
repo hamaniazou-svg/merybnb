@@ -120,7 +120,7 @@
                     : 'bg-red-100 text-red-700';
 
                 return `
-                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                    <div id="booking-${booking.uid}" class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
                         <div class="p-8">
                             <div class="flex justify-between items-start mb-6">
                                 <div>
@@ -128,7 +128,7 @@
                                     <p id="prop-city-${booking.id}" class="text-gray-600 mt-1">Morocco</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-3xl font-bold gradient-text">Loading...</p>
+                                    <p class="text-3xl font-bold gradient-text">${booking.total_price ? '$' + parseFloat(booking.total_price).toFixed(2) : '-'}</p>
                                     <p class="text-xs text-gray-500 mt-1">Total Price</p>
                                 </div>
                             </div>
@@ -200,22 +200,39 @@
                 const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 });
 
                 if (response.status === 204 || response.ok) {
                     alert('✓ Booking cancelled successfully');
-                    loadMyBookings();
+                    // Remove the booking card directly from the DOM
+                    const bookingCard = document.getElementById(`booking-${bookingId}`);
+                    if (bookingCard) {
+                        bookingCard.remove();
+                        // Check if there are any bookings left
+                        const container = document.getElementById('bookings-list');
+                        if (container.children.length === 0) {
+                            // If no bookings left, show empty state
+                            document.getElementById('empty-state').classList.remove('hidden');
+                        }
+                    }
                 } else {
-                    const error = await response.json();
-                    alert(`Error: ${error.detail || 'Could not cancel booking'}`);
+                    let errorMessage = 'Could not cancel booking';
+                    try {
+                        const error = await response.json();
+                        errorMessage = error.detail || errorMessage;
+                    } catch (e) {
+                        // If response is not JSON, use default message
+                    }
+                    alert(`Error: ${errorMessage}`);
                     button.disabled = false;
                     button.textContent = 'Cancel Booking';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Connection error');
+                alert('Connection error. Please try again.');
                 button.disabled = false;
                 button.textContent = 'Cancel Booking';
             }

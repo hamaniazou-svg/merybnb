@@ -55,6 +55,13 @@ class Booking(models.Model):
         help_text="Check-out date"
     )
 
+    guest_count = models.PositiveIntegerField(
+        default=1,
+        null=True,
+        blank=True,
+        help_text="Number of guests for this booking"
+    )
+
     source = models.CharField(
         max_length=20,
         choices=SourceChoices.choices,

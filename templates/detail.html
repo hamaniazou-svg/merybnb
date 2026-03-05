@@ -153,14 +153,15 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Guests</label>
-                            <select id="guests" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-medium text-gray-900 focus:border-rose-500 focus:outline-none transition">
-                                <option value="1">1 Guest</option>
-                                <option value="2">2 Guests</option>
-                                <option value="3">3 Guests</option>
-                                <option value="4">4 Guests</option>
-                                <option value="6">6+ Guests</option>
+                            <select id="guests" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-medium text-gray-900 focus:border-rose-500 focus:outline-none transition" onchange="validateGuestCapacity()">
+                                <option value="">Select guests...</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Capacity Warning -->
+                    <div id="capacity-warning" class="hidden mb-6 p-4 bg-red-50 rounded-2xl border-l-4 border-red-500">
+                        <p class="text-red-700 font-semibold">⚠️ <span id="warning-message"></span></p>
                     </div>
 
                     <!-- Price Breakdown -->
@@ -207,6 +208,7 @@
         let propertyImages = [];
         let currentImageIndex = 0;
         let pricePerNight = 0;
+        let maxCapacity = 2;
 
         // Set minimum date to today
         function setMinDate() {
@@ -315,6 +317,11 @@
                 document.getElementById('prop-baths').textContent = data.baths || 1;
                 document.getElementById('prop-capacity').textContent = ((data.beds || 1) * 2);
 
+                // Calculate max capacity and populate guest dropdown
+                const beds = data.beds || 1;
+                maxCapacity = beds * 2;
+                populateGuestDropdown(maxCapacity);
+
                 // Initialize image gallery
                 initImageSlider(data.images || []);
 
@@ -346,6 +353,36 @@
                         </div>
                     </div>
                 `;
+            }
+        }
+
+        // Populate guest dropdown based on property capacity
+        function populateGuestDropdown(capacity) {
+            const guestSelect = document.getElementById('guests');
+            let options = '<option value="">Select guests...</option>';
+            for (let i = 1; i <= capacity; i++) {
+                const label = i === 1 ? 'Guest' : 'Guests';
+                options += `<option value="${i}">${i} ${label}</option>`;
+            }
+            guestSelect.innerHTML = options;
+        }
+
+        // Validate guest capacity
+        function validateGuestCapacity() {
+            const guestCount = parseInt(document.getElementById('guests').value) || 0;
+            const warningDiv = document.getElementById('capacity-warning');
+            const reserveBtn = document.getElementById('reserve-btn');
+            const warningMessage = document.getElementById('warning-message');
+            
+            if (guestCount > maxCapacity && guestCount > 0) {
+                warningDiv.classList.remove('hidden');
+                warningMessage.textContent = `Maximum capacity for this property is ${maxCapacity} guests. You selected ${guestCount}.`;
+                reserveBtn.disabled = true;
+                reserveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                warningDiv.classList.add('hidden');
+                reserveBtn.disabled = false;
+                reserveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 
@@ -381,9 +418,21 @@
 
             const checkIn = document.getElementById('check-in').value;
             const checkOut = document.getElementById('check-out').value;
+            const guestCount = parseInt(document.getElementById('guests').value) || 0;
 
             if (!checkIn || !checkOut) {
                 alert('Please select check-in and check-out dates');
+                return;
+            }
+
+            if (!guestCount || guestCount <= 0) {
+                alert('Please select number of guests');
+                return;
+            }
+
+            // Validate guest capacity before submission
+            if (guestCount > maxCapacity) {
+                alert(`Maximum capacity for this property is ${maxCapacity} guests.`);
                 return;
             }
 
@@ -397,7 +446,8 @@
                     body: JSON.stringify({
                         property_listing: propId,
                         check_in: checkIn,
-                        check_out: checkOut
+                        check_out: checkOut,
+                        guest_count: guestCount
                     })
                 });
 
@@ -406,7 +456,13 @@
                     window.location.href = `/booking-success.html?booking_id=${result.uid}`;
                 } else {
                     const errorData = await response.json();
-                    alert(`Booking failed: ${errorData.property_listing?.[0] || errorData.detail || 'Please try again'}`);
+                    if (errorData.guest_count) {
+                        alert(`Guest validation error: ${errorData.guest_count[0]}`);
+                    } else if (errorData.non_field_errors) {
+                        alert(`Booking failed: ${errorData.non_field_errors[0]}`);
+                    } else {
+                        alert(`Booking failed: ${errorData.detail || 'Please try again'}`);
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
