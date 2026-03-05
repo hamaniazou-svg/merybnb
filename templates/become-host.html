@@ -409,6 +409,8 @@
     </div>
 
     <script>
+        const API_BASE_URL = window.location.origin + '/api';
+
         function showHostModal() {
             document.getElementById('hostModal').classList.remove('hidden');
             document.getElementById('hostModal').classList.add('flex');
@@ -454,7 +456,7 @@
                     city: document.getElementById('city').value,
                 };
 
-                const response = await fetch('/api/legal/host-application/', {
+                const response = await fetch(`${API_BASE_URL}/legal/host-application/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -82,7 +82,7 @@
             button.textContent = 'Signing in...';
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/token/', {
+                const response = await fetch(window.location.origin + '/api/token/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })
@@ -100,7 +100,7 @@
                 }
             } catch (err) {
                 console.error('Login Error:', err);
-                alert('⚠️ Connection error. Is Django running on http://127.0.0.1:8000?');
+                alert('⚠️ Connection error. Is the Django server running?');
                 button.disabled = false;
                 button.textContent = 'Sign In';
             }

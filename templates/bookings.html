@@ -24,7 +24,7 @@
     <script>
         async function fetchMyBookings() {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/bookings/list/');
+                const response = await fetch(window.location.origin + '/api/bookings/list/', {
                 const data = await response.json();
                 
                 const list = document.getElementById('bookings-list');
