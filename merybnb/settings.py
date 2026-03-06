@@ -93,7 +93,7 @@ AWS_S3_ENDPOINT_URL = 'https://your-project-ref.supabase.co/storage/v1/s3'
 
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 
 
